@@ -1,4 +1,4 @@
-#from local version game4, uploaded 27/3/24
+#from local version 5, uploaded 31/3/24
 colourLookup = ["N","R","G"]
 class Tile:
     def __init__(self,type):
@@ -7,6 +7,15 @@ class Tile:
         self.type = type #1 is corner, 2 is edge, 3 is center 
     def __str__(self):
         return str(colourLookup[self.colour])+str(self.n)+" "
+    def __int__(self):
+        if self.colour == 0:
+            return 0
+        if self.colour == 1:
+            return self.n
+        elif self.colour == 2:
+            return -self.n
+        else:
+            return -999
 
 def generateRow(w,notEdge): #notEdge = 0 when generating edge row, 1 when generating center row 
     row = []
@@ -32,37 +41,40 @@ def printState():
         print("")
 
 def addParticle(pos,colour):
-    gameState[pos[0]][pos[1]].colour = colour
-    gameState[pos[0]][pos[1]].n += 1
+    gameState[pos[1]][pos[0]].colour = colour
+    gameState[pos[1]][pos[0]].n += 1
 
 def getTile(pos):
-    return gameState[pos[0]][pos[1]]
+    return gameState[pos[1]][pos[0]]
 
 def setTileN(pos,n):
-    gameState[pos[0]][pos[1]].n = n
+    gameState[pos[1]][pos[0]].n = n
 
 def setTileColour(pos,colour):
-    gameState[pos[0]][pos[1]].colour = colour
+    gameState[pos[1]][pos[0]].colour = colour
 
 def resolve(i,j):
     setTileN([i,j],0)
     propagatingColour = getTile([i,j]).colour #find what the colour is 
+    setTileColour([i,j],0)
     try:
         addParticle([i+1,j],propagatingColour) #increas all adjacent tiles ki balls and change colour to that
     except IndexError:                          #if its a corner or edge this should take care of it 
         pass
     try:
-        addParticle([i-1,j],propagatingColour)
-    except IndexError:
-        pass
-    try:
         addParticle([i,j+1],propagatingColour)
     except IndexError:
         pass
-    try:
-        addParticle([i,j-1],propagatingColour)
-    except IndexError:
-        pass
+    if j-1 >= 0:
+        try:
+            addParticle([i,j-1],propagatingColour)
+        except IndexError:
+            pass
+    if i-1 >= 0:
+        try:
+            addParticle([i-1,j],propagatingColour)
+        except IndexError:
+            pass
 
 def tick():
     height = len(gameState)
@@ -73,11 +85,11 @@ def tick():
                 resolve(i,j)
                 tick()
 
-#showing program off
+#what armaan gotta type 
 generateBoard(5,5)
 printState()
 for i in range(0,10):
-    addParticle([4,2],1)
+    addParticle([0,0],1)
     tick()
     printState()
 
